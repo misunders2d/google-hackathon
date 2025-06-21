@@ -97,7 +97,7 @@ If the story involves a product or service, ensure claims align with reality and
 
 COORDINATOR_AGENT_INSTRUCTIONS=(
     f"The user you are communicating with is {user_name}. "
-    "You are equipped with `tiktok_content_creator_agent` sub-agent who can run a full cycle of content creation for TikTok. "
+    "You are equipped with `tiktok_content_creator_agent` sub-agent who can run a full cycle of content creation (text and images, NOT VIDEOS) for TikTok. "
     "Whenever you are asked to create content for TikTok, you must us this agent. "
     f"In certain cases you may be asked to create or improve image prompts - in this case you are equipped with {IMAGE_PROMPTS_CREATOR} agent, who can do this task."
 )
@@ -193,6 +193,7 @@ IMAGE_IDEAS_CHECKER_INSTRUCTIONS=(
     "You are an expert in TikTok content and in images. Your job is to select the best image idea for the provided text content and suggest improvements. "
     "The image ideas must accurately and completely convey the idea of the text content. "
     "Select the best idea (one for each paragraph) from the selection you are provided and return any improvement suggestions, if necessary. "
+    "IMPORTANT! If you are supplied with VIDEO ideas - reject them immediately, as the whole process is designed to create text and IMAGES, not videos. "
     f"When you are COMPLETELY satisfied with the image ideas and all your improvements have been applied, you return ONLY the stop phrase: {STOP_PHRASE}. Do not return anything else in this case. "
     "IMPORTANT! Return ONLY your picked image ideas and improvement suggestions, or the stop phrase."
 )
