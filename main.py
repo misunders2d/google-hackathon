@@ -19,7 +19,7 @@ if login_st():
         user_id = st.user.email
     else:
         user_id = 'unknown_user'
-    user_name = st.user.name if 'name' in st.user else "Unknown User"
+    
     if 'picture' in st.user and isinstance(st.user.picture, str):
         user_picture = st.user.picture
     else:

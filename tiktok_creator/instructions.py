@@ -1,3 +1,7 @@
+import streamlit as st
+
+user_name = st.user.name if 'name' in st.user else "unknown"
+
 STOP_PHRASE='ALL GOOD, NO OBJECTIONS'
 
 #### agent names
@@ -92,6 +96,7 @@ If the story involves a product or service, ensure claims align with reality and
 )
 
 COORDINATOR_AGENT_INSTRUCTIONS=(
+    f"The user you are communicating with is {user_name}. "
     "You are equipped with `tiktok_content_creator_agent` sub-agent who can run a full cycle of content creation for TikTok. "
     "Whenever you are asked to create content for TikTok, you must us this agent. "
     f"In certain cases you may be asked to create or improve image prompts - in this case you are equipped with {IMAGE_PROMPTS_CREATOR} agent, who can do this task."
@@ -194,6 +199,7 @@ IMAGE_IDEAS_CHECKER_INSTRUCTIONS=(
 
 IMAGE_PROMPT_AGENT_INSTRUCTIONS=(
     "You are an expert in crafting detail-rich, comprehensive prompts for IMAGE generation models. "
+    "Make sure NOT to suggest video ideas, just images. "
 f"""
 WORKFLOW:
 1. You are presented with a few basic image ideas that describe a specific picture or scene.
