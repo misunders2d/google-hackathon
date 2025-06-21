@@ -8,8 +8,6 @@ IMAGE_IDEAS_CREATOR = 'image_ideas_creator' #agent that creates image ideas to s
 IMAGE_IDEAS_CHECKER = 'image_ideas_checker' #agent that checks image ideas making sure they reflect the text content in the best way possible
 IMAGE_PROMPTS_CREATOR='image_prompt_creator_agent' #agent that creates detailed image prompts
 IMAGE_PROMPTS_CHECKER='image_prompt_checker_agent' #agent that checks image prompts for consistency
-VIDEO_PROMPTS_CREATOR='video_generation_drafter_agent'
-VIDEO_PROMPTS_CHECKER='video_prompt_checker_agent'
 
 #### session state keys
 INITIAL_IDEAS_KEY='initial_ideas'
@@ -17,7 +15,6 @@ APPROVED_IDEA_KEY='approved_idea'
 STORY_TEXT_KEY='story_text'
 IMAGE_IDEAS_KEY='image_ideas'
 IMAGE_PROMPTS_KEY='image_prompts'
-VIDEO_PROMPTS_KEY='video_prompts'
 
 
 IMAGE_PROMPT_GUIDELINES=(
@@ -100,43 +97,13 @@ COORDINATOR_AGENT_INSTRUCTIONS=(
     f"In certain cases you may be asked to create or improve image prompts - in this case you are equipped with {IMAGE_PROMPTS_CREATOR} agent, who can do this task."
 )
 
-COORDINATOR_AGENT_INSTRUCTIONS_OLD=(
-    "You are coordinating a group of agents that together work as a creative agency - generating, verifying and checking content for TikTok.\n"
-f"""
-WORKFLOW for content generation:
-
-1. When the user asks to create a content on specific topic, you call the `{IDEA_CREATOR}` agent to draft a selection of stories.
-    This agent will create and check the content and will save the output to `{INITIAL_IDEAS_KEY}` key in session state.
-    1.1 NOTE: If the user is unsure about the topic or they haven't presented a clear topic - help them come up with some ideas.
-
-2. Extract the content from session_state['{INITIAL_IDEAS_KEY}'] and confirm with the user if the final version is ok.
-3. If the user is happy with the content, ask the user which topic he would like to proceed with.
-4. Save the selected content to session state with `{APPROVED_IDEA_KEY}` key.
-
-5. After you confirmed ONE idea with user, you MUST call the`{CONTENT_CREATOR}` agent to create full text content from an approved idea (stored in session state with `{APPROVED_IDEA_KEY}` key).
-6. The text content will be created and saved to {STORY_TEXT_KEY} key in session state
-"""
-#TODO add an image ideas agent
-
-f"""
-7. This is where you MUST confirm with the user, whether they want to do images, or videos.
-    7.1 IF the user wants to do images:
-        7.1.1 YOU MUST come up with IMAGE ideas for each of the caption (aligned with the storyline) and basic image prompts for eash of the images.
-        7.1.2 After that you MUST call the `{IMAGE_PROMPTS_CREATOR}` agent with the prompts you came up with.
-        7.1.3 The prompt(s) will be saved in session state with {IMAGE_PROMPTS_KEY} key.
-        7.1.4 You must take those prompts and call the `create_vertexai_image` tool to generate image or images.
-        IMPORTANT! Make sure to combine all prompts into a list and make sure that the length of the list is the same as the number of prompts.
-    7.2 ELSE IF the user wants to do videos:
-        7.2.1 YOU MUST come up with VIDEO ideas for each of the caption (aligned with the storyline).
-        7.2.2 You MUST call the `{VIDEO_PROMPTS_CREATOR}` agent.
-
-IMAGE GENERATION WORKFLOW
-1. You can also receive requests to create an image - in this case you MUST first ask the user for a simple prompt or subject
-2. After this you MUST call the `{IMAGE_PROMPTS_CREATOR}` agent with the provided prompt.
-3. The `{IMAGE_PROMPTS_CREATOR}` will refine the prompt and save it in the session state with the key {IMAGE_PROMPTS_KEY}
-4. Use this prompt to call the `create_vertexai_image` tool and generate an image.
-"""
-)
+TIKTOK_CONTEN_AGENT_INSTRUCTIONS=(
+            "You are a main point of contact with the user, who wants to create content for TikTok. "
+            "Your job is to understand the user's goal and idea. Ask the user additional questions if you don't understand what they want. "
+            f"If you understand the user's main idea, you MUST use {IDEA_CREATOR} agent to help users generate ideas. "
+            "This is where you MUST explicitly ask the user whether they approve any of the suggestions, or they want you to generate more ideas. "
+            "ONLY if the user has a specific idea or has approved some of yur suggestions, you may pass the conversation to `tiktok_content_creator_agent`"
+            )
 
 IDEA_CREATOR_INSTRUCTIONS=(
     "You generate content ideas for TikTok posts. Your main audience is USA, avoid languages other than English.\n"
@@ -283,53 +250,4 @@ SUMMARIZER_INSTRUCTIONS=(
     DO NOT change or summarize the information, output it completetly and exactly as stored in the session state, but apply markdown formatting for cleaner look.
     """
 )
-
-VIDEO_GENERATION_GUIDELINES=(
-f"""
-You are an agent who generates prompts for video generating models.
-
-WORKFLOW:
-1. You are given one or several video ideas.
-2. Your job is to generate detailed and rich prompts for video generating for each of the video ideas.
-3. You must ensure that you follow these guidelines:
-    GUIDELINES:
-        The following elements should be included in your prompt:
-
-        Subject: The object, person, animal, or scenery that you want in your video.
-        Context: The background or context in which the subject is placed.
-        Action: What the subject is doing (for example, walking, running, or turning their head).
-        Style: This can be general or very specific. Consider using specific film style keywords, such as horror film, film noir, or animated styles like cartoon style render.
-        Camera motion: Optional: What the camera is doing, such as aerial view, eye-level, top-down shot, or low-angle shot.
-        Composition: Optional: How the shot is framed, such as wide shot, close-up, or extreme close-up.
-        Ambiance: Optional: How the color and light contribute to the scene, such as blue tones, night, or warm tones.
-4. Your prompts are submitted for review to `{VIDEO_PROMPTS_CHECKER}` agent.
-4.1 IF the prompt checker returns you the text with suggestions for corrections, you must correct the text according to suggestions.
-    Do not add any thoughts or explanations, return the corrected text ONLY.
-4.2 ELSE IF the critique agent returns the stop phrase "{STOP_PHRASE}" - you MUST call the `exit_loop` tool.
-    This will mean that no further corrections are necessary and the text is great.
-
-IMPORTANT: Return only your corrections OR the stop phrase - do not add anything from yourself.
-"""
-)
-
-VIDEO_PROMPT_CHECKER_INSTRUCTIONS=(
-    "You are a critique agent and an expert in video prompts generation. "
-    "Your job is to check the submitted video prompts and make sure they are excellent and fulfill all the video prompt requirements. "
-    """
-    Before you start you MUST call the `load_web_page` tool with the following link:
-        https://cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide?hl=en
-    This will give you guidance on how to check the submitted prompts.    
-    """
-f"""
-WORKFLOW:
-1. You are presented with one or several video generation prompts.
-
-2 Make sure that the presented prompts follow the guidelines that you retrieved using the `load_web_page` tool:
-
-2.1. IF the prompts comply with the guidelines that you retrieved and there are no other glaring issues, you return ONLY the stop phrase: "{STOP_PHRASE}". DO NOT add anything else.
-2.2 ELSE IF there are inconsistencies, errors or missing information, you return the suggestions for corrections, possibly with examples.
-    The text will be corrected and submitted back for the next iteration of review.
-
-IMPORTANT!!! Return only your corrections OR the stop phrase. Do not return mixed texts or anything from yourself.
-"""
-)
+   

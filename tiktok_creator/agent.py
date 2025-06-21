@@ -1,6 +1,6 @@
 from google.adk.agents import Agent
 
-from .sub_agents import create_tiktok_coordinator_agent, create_image_prompt_loop_agent, video_generator_loop_agent
+from .sub_agents import create_tiktok_coordinator_agent, create_image_prompt_loop_agent
 
 from . import instructions
 
@@ -13,5 +13,5 @@ root_agent = Agent(
     fun and smm-focused content for various platforms (like TikTok, Instagram, etc.).
     ''',
     instruction=instructions.COORDINATOR_AGENT_INSTRUCTIONS,
-    sub_agents=[create_tiktok_coordinator_agent(), create_image_prompt_loop_agent(), video_generator_loop_agent],
+    sub_agents=[create_tiktok_coordinator_agent(), create_image_prompt_loop_agent()],
 )

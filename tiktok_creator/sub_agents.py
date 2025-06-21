@@ -150,35 +150,7 @@ def create_tiktok_coordinator_agent():
         name='tiktok_master',
         description='An agent running full cycle of TikTok content creation, from initial idea generation to text content and image generation',
         model=MODEL,
-        instruction=(
-            "You are a main point of contact with the user, who wants to create content for TikTok. "
-            "Your job is to understand the user's goal and idea. Ask the user additional questions if you don't understand what they want. "
-            f"If you understand the user's main idea, you MUST use {instructions.IDEA_CREATOR} agent to help users generate ideas. "
-            "This is where you MUST explicitly ask the user whether they approve any of the suggestions, or they want you to generate more ideas. "
-            "ONLY if the user has a specific idea or has approved some of yur suggestions, you may pass the conversation to `tiktok_content_creator_agent`"
-            ),
+        instruction=instructions.TIKTOK_CONTEN_AGENT_INSTRUCTIONS,
         sub_agents=[create_ideas_loop_agent(), create_full_cycle_content_agent()]
     )
     return tiktok_coordinator
-
-video_generation_drafter=Agent(
-    name='video_prompts_drafter_agent',
-    description='An agent which drafts prompts for video generation models',
-    instruction=instructions.VIDEO_GENERATION_GUIDELINES,
-    tools=[exit_loop],
-    output_key=instructions.VIDEO_PROMPTS_KEY
-)
-
-video_prompt_checker=Agent(
-    name=instructions.VIDEO_PROMPTS_CHECKER,
-    description='An agent who is an expert in video prompts and checsk the submitted prompts for errors and completeness',
-    instruction=instructions.VIDEO_PROMPT_CHECKER_INSTRUCTIONS,
-    tools=[load_web_page.load_web_page]
-)
-
-video_generator_loop_agent = LoopAgent(
-    name=instructions.VIDEO_PROMPTS_CREATOR,
-    description='An agent that creates rich video-generation prompts',
-    sub_agents=[video_generation_drafter, video_prompt_checker],
-    max_iterations=7
-)
