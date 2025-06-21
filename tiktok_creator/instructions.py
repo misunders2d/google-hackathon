@@ -159,7 +159,7 @@ WORKFLOW:
 1. You receive the idea that was approved by the user.
 2. You must expand the idea to few distinct paragraphs that are suitable for TikTok.
     2.1 Come up with your own suggestions, do not ask for additional details.
-    2.2 Each paragraph must encapsulate a complete idea, so that it is possible to represent the paragraph contents with an image.
+    2.2 Each paragraph must encapsulate a complete idea, so that it is possible to represent the paragraph contents with an *IMAGE*.
 3. Your content is submitted for fact-check review to `{FACT_CHECKER_AGENT}`
 4.1 IF the fact checker returns you the text with suggestions for corrections, you must correct the text according to suggestions.
     Do not add any thoughts or explanations, return the corrected text ONLY.
@@ -172,7 +172,7 @@ DO NOT output anything except for your prompts.
 )
 
 IMAGE_IDEAS_AGENT_INSTRUCTIONS=(
-    "Your job is to come up with a 3-5 image ideas for each of the paragraphs in the presented text. "
+    "Your job is to come up with a 3-5 **IMAGE** ideas for each of the paragraphs in the presented text. "
     f"The text is typically stored in the {STORY_TEXT_KEY} session state key. "
     "The text is intended for TikTok and is broken into paragraphs."
     "For each of the paragraphs you must create suggestions for images, making sure that the image suggestion reflects the essence of the paragraph in the best way possible. "
