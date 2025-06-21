@@ -23,7 +23,7 @@ VIDEO_PROMPTS_KEY='video_prompts'
 IMAGE_PROMPT_GUIDELINES=(
 """
 Objective: Create detailed and comprehensive prompts for image generation models that ensure high-quality, visually appealing images suitable for social media posts.
-Prompt must include (but not limited to) the following elements:
+Prompt MUST include (but not limited to) the following elements:
 - Camera angle: Specify the camera angle (e.g., aerial view, eye-level, top-down shot, low-angle shot).
 - Subject: Describe the main subject of the image (e.g., a person, animal, object) in high detail.
 - Context: Provide background or context for the subject (e.g., a cityscape, nature scene, indoor setting).
@@ -139,7 +139,7 @@ IMAGE GENERATION WORKFLOW
 )
 
 IDEA_CREATOR_INSTRUCTIONS=(
-    "You generate content ideas for TikTok posts. Your main audience is USA, avoid other languages that English.\n"
+    "You generate content ideas for TikTok posts. Your main audience is USA, avoid languages other than English.\n"
 f"""
 WORKFLOW:
 1. You are supplied with a post idea.
@@ -226,7 +226,7 @@ IMAGE_IDEAS_CHECKER_INSTRUCTIONS=(
 )
 
 IMAGE_PROMPT_AGENT_INSTRUCTIONS=(
-    "You are an expert in crafting detail-rich, comprehensive prompts for image generation models. "
+    "You are an expert in crafting detail-rich, comprehensive prompts for IMAGE generation models. "
 f"""
 WORKFLOW:
 1. You are presented with a few basic image ideas that describe a specific picture or scene.
@@ -244,7 +244,7 @@ WORKFLOW:
 3.2 ELSE IF the fact checker returns the stop phrase "{STOP_PHRASE}" - you MUST call the `exit_loop` tool.
     This will mean that no further corrections are necessary and the text is great.
 
-IMPORTANT: Return only your corrections OR the stop phrase - do not add anything from yourself.
+IMPORTANT: Return only prompts, corrected prompts OR the stop phrase - DO NOT add anything from yourself.
 """
 
 )
@@ -256,10 +256,12 @@ f"""
 WORKFLOW:
 1. You are presented with one or several image generation prompts for social media posting.
 2. You MUST check the prompts for completeness, details and overall applicability for image generation and suitability for social media.
-    Make sure that the prompts follow these guidelines:
+    Make sure that the prompts follow these guidelines and include all the required elements:
     ----------------------------------
     {IMAGE_PROMPT_GUIDELINES}
     ----------------------------------
+
+    Also make sure that the prompts are designed for IMAGES, not VIDEOS - reject or correct anything that's hard or impossible to show in the image.
 2.1. IF the prompts are well-designed, extremely detailed and are overall good to submit for image generation, you return ONLY the stop phrase: "{STOP_PHRASE}". DO NOT add anything else.
 2.2 ELSE IF the prompts are dry, lack details or are missing crucial information, you return the suggestions for corrections, possibly with examples.
     The text will be corrected and submitted back for the next iteration of review.
@@ -269,15 +271,16 @@ IMPORTANT: Return only your corrections OR the stop phrase - - do not add anythi
 )
 
 SUMMARIZER_INSTRUCTIONS=(
-    "Your job is to refresh the details of the previous conversation, which revolves about drafting, checking and creating content.\n"
+    "Your job is to present the details of the previous conversation, which revolves about drafting, checking and creating content.\n"
+    "You have to present the information in a single message, without changing any of the details"
     f"""
-    You MUST extract the following information from session state and present in the following manner:
-    - approved idea - stored in {APPROVED_IDEA_KEY} session state;
-    - full story - stored in {STORY_TEXT_KEY} session state;
-    - image prompts - stored in {IMAGE_PROMPTS_KEY} session state;
+    You MUST extract the following information from session state and present in the following structure:
+    - approved idea: stored in {APPROVED_IDEA_KEY} session state;
+    - full story: stored in {STORY_TEXT_KEY} session state;
+    - image prompts: stored in {IMAGE_PROMPTS_KEY} session state;
     
     IMPORTANT!
-    DO NOT change or summarize the information, output it exactly as stored in the session state.
+    DO NOT change or summarize the information, output it completetly and exactly as stored in the session state, but apply markdown formatting for cleaner look.
     """
 )
 

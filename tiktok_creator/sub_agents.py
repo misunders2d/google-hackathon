@@ -33,7 +33,7 @@ def create_ideas_agent():
 def create_ideas_loop_agent():
     ideas_loop_agent = LoopAgent(
         name=instructions.IDEA_CREATOR,
-        description='An agent that creates ideas for TikTok posts and checks facts in this content using google search',
+        description='An agent that generates ideas for TikTok posts and checks facts in this content using google search',
         sub_agents=[create_ideas_agent(), create_fact_checker()],
         max_iterations=7
     )
@@ -127,7 +127,7 @@ def create_content_summarizer_agent():
     summarizer_agent = Agent(
         name='summarizer_agent',
         model=MODEL,
-        description='Agent that summarizes the content creation data',
+        description='Agent that gathers the content creation data',
         instruction=instructions.SUMMARIZER_INSTRUCTIONS
     )
     return summarizer_agent
@@ -135,9 +135,8 @@ def create_content_summarizer_agent():
 def create_full_cycle_content_agent():
     tik_tok_creator = SequentialAgent(
         name='tiktok_content_creator_agent',
-        description="An agent running full cycle of TikTok content creation, from initial idea generation to text content and image generation",
+        description="An agent running full cycle of TikTok content creation from a pre-approved idea, including text content and image generation",
         sub_agents=[
-            create_ideas_loop_agent(),
             create_text_content_loop_agent(),
             create_image_ideas_loop_agent(),
             create_image_prompt_loop_agent(),
@@ -153,10 +152,12 @@ def create_tiktok_coordinator_agent():
         model=MODEL,
         instruction=(
             "You are a main point of contact with the user, who wants to create content for TikTok. "
-            "Your job is to understand the user's goal and idea. "
-            "ONLY after you understand the user's intention, you may pass the conversation to `tiktok_content_creator_agent`"
+            "Your job is to understand the user's goal and idea. Ask the user additional questions if you don't understand what they want. "
+            f"If you understand the user's main idea, you MUST use {instructions.IDEA_CREATOR} agent to help users generate ideas. "
+            "This is where you MUST explicitly ask the user whether they approve any of the suggestions, or they want you to generate more ideas. "
+            "ONLY if the user has a specific idea or has approved some of yur suggestions, you may pass the conversation to `tiktok_content_creator_agent`"
             ),
-        sub_agents=[create_full_cycle_content_agent()]
+        sub_agents=[create_ideas_loop_agent(), create_full_cycle_content_agent()]
     )
     return tiktok_coordinator
 
